@@ -172,8 +172,8 @@ CREATE TABLE TrackAudit (
     TrackId         INT,
     Name            VARCHAR(200),
     Accion          VARCHAR(50),     -- INSERT / UPDATE / DELETE
-    OldUnitPrice   NUMERIC(10,2),
-    NewUnitPrice   NUMERIC(10,2),
+    OldUnitPrice    NUMERIC(10,2),
+    NewUnitPrice    NUMERIC(10,2),
     Fecha           TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
@@ -210,3 +210,104 @@ UPDATE Track
 SET Name = 'Canción A Remaster'
 WHERE TrackId = 1;
 ```
+
+--- 
+
+### 1. Función del trigger (DELETE)
+
+```sql
+CREATE OR REPLACE FUNCTION fn_audit_track_delete()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO TrackAudit (TrackId, Name, Accion, OldUnitPrice, NewUnitPrice)
+    VALUES (
+        OLD.TrackId,         -- ID antes de borrar
+        OLD.Name,            -- Nombre antes de borrar
+        'DELETE',            -- Acción
+        OLD.UnitPrice,       -- Precio antiguo
+        NULL                 -- No hay NEW en DELETE
+    );
+
+    RETURN OLD;              -- Para DELETE se devuelve OLD
+END;
+$$ LANGUAGE plpgsql;
+```
+### 2. Trigger DELETE
+
+```sql
+CREATE TRIGGER trg_audit_track_delete
+AFTER DELETE ON Track
+FOR EACH ROW
+EXECUTE FUNCTION fn_audit_track_delete();
+```
+### 3. Ejecución
+
+```sql
+DELETE FROM Track
+WHERE TrackId = 1;
+```
+
+--- 
+### 🔥 CÓDIGO COMPLETO DEL TRIGGER COMBINADO (TG_OP)
+
+TG_OP: operación para la que se activó el disparador: INSERT, UPDATE, DELETE, o TRUNCATE.
+
+```sql
+CREATE OR REPLACE FUNCTION fn_audit_track_all()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- INSERT
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO TrackAudit (TrackId, Name, Accion, OldUnitPrice, NewUnitPrice)
+        VALUES (
+            NEW.TrackId,
+            NEW.Name,
+            'INSERT',
+            NULL,
+            NEW.UnitPrice
+        );
+        RETURN NEW;
+    END IF;
+
+    -- UPDATE
+    IF TG_OP = 'UPDATE' THEN
+        INSERT INTO TrackAudit (TrackId, Name, Accion, OldUnitPrice, NewUnitPrice)
+        VALUES (
+            NEW.TrackId,
+            NEW.Name,
+            'UPDATE',
+            OLD.UnitPrice,
+            NEW.UnitPrice
+        );
+        RETURN NEW;
+    END IF;
+
+    -- DELETE
+    IF TG_OP = 'DELETE' THEN
+        INSERT INTO TrackAudit (TrackId, Name, Accion, OldUnitPrice, NewUnitPrice)
+        VALUES (
+            OLD.TrackId,
+            OLD.Name,
+            'DELETE',
+            OLD.UnitPrice,
+            NULL
+        );
+        RETURN OLD;
+    END IF;
+
+END;
+$$ LANGUAGE plpgsql;
+```
+TRIGGER ÚNICO
+```sql
+CREATE TRIGGER trg_audit_track_all
+AFTER INSERT OR UPDATE OR DELETE ON Track
+FOR EACH ROW
+-- Condición solo para DELETE,  si OLD.UnitPrice > 1, 
+-- para INSERT/UPDATE se hace siempre
+WHEN (TG_OP <> 'DELETE' OR OLD.UnitPrice > 1)
+EXECUTE FUNCTION fn_audit_track_all();
+```
+
+
+
