@@ -308,6 +308,123 @@ FOR EACH ROW
 WHEN (TG_OP <> 'DELETE' OR OLD.UnitPrice > 1)
 EXECUTE FUNCTION fn_audit_track_all();
 ```
+---
 
+### 📄 Triggers en vistas (INSTEAD OF)
 
+Una vista no tiene datos propios, solo muestra los de otras tablas. No te permite ni hacer un INSERT/UPDATE/DELETE.
+
+Para eso se usa INSTEAD OF, que lo hace en la tabla real.
+
+👉 Vista propuesta:
+
+```sql
+CREATE VIEW TrackView AS
+SELECT 
+    TrackId,
+    Name,
+    UnitPrice
+FROM Track;
+```
+👉 Función TRIGGER:
+```sql
+CREATE OR REPLACE FUNCTION fn_trackView_insert()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO Track (Name, UnitPrice)
+    VALUES (NEW.Name, NEW.UnitPrice);
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+```
+👉 TRIGGER:
+```sql
+CREATE TRIGGER trg_trackView_insert
+INSTEAD OF INSERT ON TrackView
+FOR EACH ROW
+EXECUTE FUNCTION fn_trackView_insert();
+```
+--- 
+### 🟦 Transition tables
+
+Son tablas temporales que contienen todas las filas afectadas por una sentencia.
+
+Se usan en triggers **AFTER STATEMENT** (no por cada fila) cuando quieres ver el conjunto completo de cambios.
+
+La creación de la tabla de transición o “tabla fantasma” -> newTab nos permite:
+
+- Procesar TODAS las filas afectadas por la sentencia (no una a una).
+- Hacer auditoría avanzada.
+- Registrar cuántas filas cambiaron, o copiarlas todas.
+- Evitar recorrer filas con bucles.
+- Mucho más eficiente.
+- Uso SQL normal como si fuera una tabla real.
+
+TABLAS:
+
+```sql
+CREATE TABLE Productos (
+    id SERIAL PRIMARY KEY,
+    nombre TEXT,
+    precio NUMERIC
+);
+```
+
+```sql
+CREATE TABLE LogMasivo (
+    operacion TEXT,
+    total_filas INT,
+    fecha TIMESTAMP DEFAULT NOW()
+);
+```
+FUNCTION TRIGGER:
+
+```sql
+CREATE OR REPLACE FUNCTION fn_log_masivo_update()
+RETURNS TRIGGER AS $$
+DECLARE
+    total INT;
+BEGIN
+    -- Contar todas las filas NUEVAS afectadas por el UPDATE
+    SELECT COUNT(*) INTO total FROM newtab;
+
+    INSERT INTO LogMasivo(operacion, total_filas)
+    VALUES ('UPDATE', total);
+
+    RETURN NULL; -- En triggers AFTER STATEMENT siempre se devuelve NULL
+END;
+$$ LANGUAGE plpgsql;
+```
+
+TRIGGER:
+```sql
+CREATE TRIGGER trg_log_masivo_update
+AFTER UPDATE ON Productos
+REFERENCING NEW TABLE AS newtab -- Hacer referencia a la tabla de transición
+FOR EACH STATEMENT      -- Transition tables solo funcionan aquí
+EXECUTE FUNCTION fn_log_masivo_update();
+```
+
+EJECUCIÓN:
+```sql
+UPDATE Productos
+SET precio = precio * 1.10
+WHERE nombre LIKE '%cola%';
+```
+---
+### ✒️ 8. Variables especiales del trigger (súper útiles)
+
+| Variable                  | ¿Qué es?                         | ¿Para qué sirve?                      | Ejemplo práctico dentro de un trigger                           |
+| ------------------------- | -------------------------------- | ------------------------------------- | --------------------------------------------------------------- |
+| **TG_OP**                 | Operación (INSERT/UPDATE/DELETE) | Saber qué acción ejecutó el trigger   | `IF TG_OP = 'DELETE' THEN RAISE NOTICE 'Se borró'; END IF;`     |
+| **TG_TABLE_NAME**         | Nombre de la tabla               | Identificar dónde ocurrió el trigger  | `RAISE NOTICE 'Tabla: %', TG_TABLE_NAME;`                       |
+| **TG_TABLE_SCHEMA**       | Esquema                          | Saber en qué esquema está la tabla    | `RAISE NOTICE 'Esquema: %', TG_TABLE_SCHEMA;`                   |
+| **TG_WHEN**               | BEFORE / AFTER / INSTEAD OF      | Detectar el momento del trigger       | `RAISE NOTICE 'Momento: %', TG_WHEN;`                           |
+| **TG_LEVEL**              | ROW / STATEMENT                  | Saber si es por fila o por sentencia  | `RAISE NOTICE 'Nivel: %', TG_LEVEL;`                            |
+| **TG_RELID**              | OID interno de la tabla          | Usos avanzados / metadatos            | `RAISE NOTICE 'OID tabla: %', TG_RELID;`                        |
+| **TG_ARGV[n]**            | Argumentos del trigger           | Hacer triggers configurables          | `RAISE NOTICE 'Arg0: %', TG_ARGV[0];`                           |
+| **TG_NARGS**              | Nº de argumentos                 | Comprobar cuántos argumentos recibió  | `RAISE NOTICE 'Args: %', TG_NARGS;`                             |
+| **OLD / NEW**             | Filas antes y después            | Ver datos modificados                 | `RAISE NOTICE 'Nombre viejo: %, nuevo: %', OLD.name, NEW.name;` |
+| **OLD TABLE / NEW TABLE** | Filas masivas de la sentencia    | Auditoría por bloque (no fila a fila) | `SELECT COUNT(*) FROM newtab;`                                  |
 
