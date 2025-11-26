@@ -1,4 +1,4 @@
 # GESTIONBBDD
 
-[Tema 1](docs/triggers.md)
+[Triggers](docs/triggers.md)
 
