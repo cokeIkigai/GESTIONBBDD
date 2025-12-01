@@ -8,7 +8,7 @@
 
 # ✨ 1. Introducción a las Vistas SQL
 
-## ⚡ 1.1. ¿Qué es una vista en SQL?
+⚡ ¿Qué es una vista en SQL?
 
 Una **vista** es una **representación virtual de una tabla**, generada a partir del resultado de una consulta SQL. 
 No almacena los datos, sino que actúa como una forma estructurada de acceder a ellos.
@@ -19,7 +19,7 @@ No almacena los datos, sino que actúa como una forma estructurada de acceder a 
 - Se comporta como una tabla desde el punto de vista del usuario.
 - Cada vez que se accede a la vista, se ejecuta la consulta que la define.
 
-## ⚡ 1.2. Características principales de las vistas
+ ⚡ Características principales de las vistas
 
 - **No almacenan datos**, solo definen cómo mostrarlos.
 - **Simplifican consultas** complejas.
@@ -28,14 +28,14 @@ No almacena los datos, sino que actúa como una forma estructurada de acceder a 
 
 Las vistas pueden ser tan simples como una selección de columnas, o tan complejas como agregaciones y uniones entre varias tablas.
 
-## ⚡ 1.3. Ventajas del uso de vistas en bases de datos
+⚡  Ventajas del uso de vistas en bases de datos
 
 - **Seguridad:** permiten mostrar solo la información necesaria.
 - **Reutilización:** evitan repetir consultas complejas.
 - **Simplificación:** facilitan el trabajo a usuarios que no conocen la estructura completa.
 - **Independencia lógica**: si cambian las tablas base, la vista puede mantenerse con el mismo nombre.
 
-## ⚡ 1.4. Sintaxis básica para crear vistas (CREATE VIEW)
+⚡  Sintaxis básica para crear vistas (CREATE VIEW)
 
 La sintaxis para crear una vista básica en SQL es:
 
@@ -57,7 +57,7 @@ WHERE departamento = 'Ventas';
 
 Esta vista mostrará solo los empleados que trabajan en el departamento de ventas, ocultando el resto de información.
 
-## ⚡ 1.5. Ejemplo de vista simple para filtrar columnas
+⚡Ejemplo de vista simple para filtrar columnas
 
 Si se desea mostrar únicamente el nombre y la ciudad de los clientes:
 
@@ -77,7 +77,7 @@ Con esto, los usuarios podrán acceder a los datos relevantes sin conocer la est
 
 # ✨ 2. Tipos de Vistas y Cláusulas Especiales
 
-## ⚡ 2.1. Vistas simples: definición y operaciones permitidas
+⚡ Vistas simples: definición y operaciones permitidas
 
 Una **vista simple** se basa en una sola tabla y no contiene funciones de agregación ni operaciones complejas como `JOIN`, `DISTINCT` o `GROUP BY`.
 
@@ -94,7 +94,7 @@ FROM empleados
 WHERE estado = 'ACTIVO';
 ```
 --- 
-## ⚡ 2.2. Vistas complejas: restricciones y consideraciones
+⚡ Vistas complejas: restricciones y consideraciones
 
 Una **vista compleja** se define utilizando más de una tabla o incluye funciones de agregación (`SUM`, `AVG`, etc.), cláusulas `GROUP BY`, `HAVING` o `JOIN`.
 
@@ -111,7 +111,7 @@ FROM ventas
 GROUP BY departamento;
 ```
 
-## ⚡ 2.3. Inserciones, actualizaciones y eliminaciones a través de vistas
+⚡ Inserciones, actualizaciones y eliminaciones a través de vistas
 
 | Tipo de Vista | `INSERT` | `UPDATE` | `DELETE` |
 | --- | --- | --- | --- |
@@ -121,7 +121,7 @@ GROUP BY departamento;
 - Las vistas simples permiten DML si existe correspondencia directa con la tabla base.
 - Las vistas complejas pueden restringir o impedir estas operaciones.
 
-## ⚡ 2.4. Cláusula `WITH CHECK OPTION`
+⚡ Cláusula `WITH CHECK OPTION`
 
 Evita que las operaciones DML provoquen que los datos queden fuera de las condiciones definidas por la vista.
 
@@ -136,7 +136,7 @@ WITH CHECK OPTION;
 
 Esta opción impide cambiar el departamento de un empleado desde esta vista, si el nuevo valor no cumple la condición.
 
-## ⚡ 2.5. Cláusula `WITH READ ONLY`
+⚡Cláusula `WITH READ ONLY`
 
 Restringe completamente las operaciones de modificación a través de la vista. Es útil en vistas con agregaciones o uniones complejas.
 
@@ -150,7 +150,7 @@ GROUP BY departamento
 WITH READ ONLY;
 ```
 
-##⚡  2.6. Modificación de vistas con `CREATE OR REPLACE VIEW`
+⚡Modificación de vistas con `CREATE OR REPLACE VIEW`
 
 Permite redefinir una vista sin necesidad de eliminarla previamente. Los permisos otorgados se conservan.
 
@@ -169,7 +169,7 @@ DROP VIEW nombre_vista;
 
 # ✨ 3. Administración de Vistas desde el Diccionario de Datos
 
-## 3.1. Consultas sobre vistas con `USER_VIEWS`, `ALL_VIEWS` y `DBA_VIEWS`
+⚡Consultas sobre vistas con `USER_VIEWS`, `ALL_VIEWS` y `DBA_VIEWS`
 
 Oracle proporciona varias vistas del diccionario de datos que permiten consultar la información sobre las vistas creadas en el sistema:
 
@@ -186,7 +186,7 @@ FROM user_views;
 
 Este comando permite consultar el nombre de las vistas y el SQL que las define.
 
-## 3.2. Visualización del SQL original de una vista
+⚡Visualización del SQL original de una vista
 
 El código SQL que define una vista se puede recuperar desde la columna `TEXT` de las vistas del diccionario mencionadas.
 
@@ -200,7 +200,7 @@ WHERE view_name = 'EMPLEADOS_ACTIVOS';
 
 Esto permite revisar y verificar la definición exacta de cualquier vista creada.
 
-## 3.3. Recomendaciones para la gestión de vistas complejas
+⚡Recomendaciones para la gestión de vistas complejas
 
 **Buenas prácticas:**
 
@@ -210,7 +210,7 @@ Esto permite revisar y verificar la definición exacta de cualquier vista creada
 - Usar cláusulas como `WITH CHECK OPTION` o `WITH READ ONLY` cuando sea necesario para garantizar la coherencia de los datos y limitar acciones no deseadas.
 - Revisar regularmente las vistas no utilizadas para mantener la base de datos organizada y eficiente.
 
-## 3.4. Ejemplo completo: consulta consolidada mediante vista
+⚡Ejemplo completo: consulta consolidada mediante vista
 
 **Escenario:** Se requiere mostrar el total de ventas por departamento.
 
@@ -232,7 +232,7 @@ SELECT * FROM resumen_ventas_departamento;
 
 Esta vista permite a los usuarios consultar los totales consolidados sin necesidad de conocer la estructura interna de las tablas implicadas.
 
-## 3.5. Ventajas estratégicas en la administración con vistas
+⚡Ventajas estratégicas en la administración con vistas
 
 - **Seguridad**: Controlan el acceso a datos sensibles mediante la ocultación de columnas o registros.
 - **Simplificación**: Permiten ofrecer al usuario una vista lógica más sencilla de los datos.
@@ -243,7 +243,7 @@ Las vistas son herramientas clave para la gestión eficiente, segura y escalable
 
 # 4. Vistas Materializadas: Rendimiento y Persistencia
 
-## 4.1. ¿Qué es una vista materializada y en qué se diferencia de una vista normal?
+⚡¿Qué es una vista materializada y en qué se diferencia de una vista normal?
 
 Una **vista materializada** es una estructura de base de datos que **almacena físicamente los resultados** de una consulta. A diferencia de una vista normal, que ejecuta la consulta cada vez que se accede a ella, la vista materializada conserva los datos en disco.
 
@@ -257,7 +257,7 @@ Esto permite acceder rápidamente a resultados complejos o pesados sin necesidad
 | Tiempo de actualización | En tiempo real | Bajo demanda o automático |
 | Rendimiento en consultas | Medio | Alto |
 
-## 4.2. Sintaxis básica: `CREATE MATERIALIZED VIEW`
+⚡Sintaxis básica: `CREATE MATERIALIZED VIEW`
 
 La sintaxis general para crear una vista materializada en Oracle es:
 
@@ -283,7 +283,7 @@ FROM ventas
 GROUP BY departamento;
 ```
 
-## 4.3. Mecanismos de actualización (`REFRESH`)
+⚡Mecanismos de actualización (`REFRESH`)
 
 Las vistas materializadas deben sincronizarse periódicamente con los datos reales. Oracle permite varios mecanismos:
 
@@ -291,7 +291,7 @@ Las vistas materializadas deben sincronizarse periódicamente con los datos real
 - **`COMPLETE`**: Reejecuta toda la consulta y reemplaza los datos.
 - **`FORCE`**: Intenta un `FAST`; si no es posible, realiza un `COMPLETE`.
 
-## 4.4. Tipos de refresco: `ON COMMIT` vs `ON DEMAND`
+⚡Tipos de refresco: `ON COMMIT` vs `ON DEMAND`
 
 - **`ON COMMIT`**: La vista se actualiza automáticamente cada vez que se hace `COMMIT` en la tabla base. Es útil si se requiere una sincronización constante.
 - **`ON DEMAND`**: La vista solo se actualiza cuando se ejecuta manualmente el comando:
@@ -302,14 +302,14 @@ EXEC DBMS_MVIEW.REFRESH('nombre_vista');
 
 Este método es más eficiente para cargas masivas o informes que no necesitan información en tiempo real.
 
-## 4.5. Escenarios ideales para vistas materializadas
+⚡Escenarios ideales para vistas materializadas
 
 - Informes sobre **grandes volúmenes de datos** con agregaciones frecuentes.
 - Consultas **pesadas** que impactan en el rendimiento si se ejecutan constantemente.
 - Necesidad de separar la carga de trabajo entre **sistemas de producción y de análisis**.
 - **Dashboards** de dirección o áreas de BI donde la información no cambia constantemente.
 
-## 4.6. Comparativa final entre vistas normales y materializadas
+⚡Comparativa final entre vistas normales y materializadas
 
 | Característica | Vista normal | Vista materializada |
 | --- | --- | --- |
