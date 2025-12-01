@@ -19,7 +19,7 @@ No almacena los datos, sino que actúa como una forma estructurada de acceder a 
 - Se comporta como una tabla desde el punto de vista del usuario.
 - Cada vez que se accede a la vista, se ejecuta la consulta que la define.
 
- ####⚡ Características principales de las vistas
+ ### Características principales de las vistas
 
 - **No almacenan datos**, solo definen cómo mostrarlos.
 - **Simplifican consultas** complejas.
