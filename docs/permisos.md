@@ -22,7 +22,7 @@ DROP OWNED BY nombre; DROP ROLE nombre;
 -- Renombrar rol	
 ALTER ROLE viejo RENAME TO nuevo;
 -- Cambiar contraseña	
-ALTER ROLE pepe PASSWORD 'xxx';
+ALTER ROLE pepe PASSWORD '7890';
 -- Bloquear login	
 ALTER ROLE pepe NOLOGIN;
 -- Ver roles	
