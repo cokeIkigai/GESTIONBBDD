@@ -1,4 +1,4 @@
-# UT 5: Acceso a la Información. Vistas
+# 🔍 UT 5: Acceso a la Información. Vistas
 
 # Introducción
 
@@ -6,20 +6,20 @@
 - No contiene datos propios, sino que permite acceder a los datos reales de otras tablas mediante una consulta predefinida. 
 - Las vistas son una herramienta clave para **simplificar el acceso a la información** y para **aplicar políticas de seguridad**.
 
-# 1. Introducción a las Vistas SQL
+# ✨ 1. Introducción a las Vistas SQL
 
-## 1.1. ¿Qué es una vista en SQL?
+## ⚡ 1.1. ¿Qué es una vista en SQL?
 
 Una **vista** es una **representación virtual de una tabla**, generada a partir del resultado de una consulta SQL. 
 No almacena los datos, sino que actúa como una forma estructurada de acceder a ellos.
 
-**Importante:**
+🔔 **Importante:**
 
 - Permite encapsular lógica de consulta.
 - Se comporta como una tabla desde el punto de vista del usuario.
 - Cada vez que se accede a la vista, se ejecuta la consulta que la define.
 
-## 1.2. Características principales de las vistas
+## ⚡ 1.2. Características principales de las vistas
 
 - **No almacenan datos**, solo definen cómo mostrarlos.
 - **Simplifican consultas** complejas.
@@ -28,14 +28,14 @@ No almacena los datos, sino que actúa como una forma estructurada de acceder a 
 
 Las vistas pueden ser tan simples como una selección de columnas, o tan complejas como agregaciones y uniones entre varias tablas.
 
-## 1.3. Ventajas del uso de vistas en bases de datos
+## ⚡ 1.3. Ventajas del uso de vistas en bases de datos
 
 - **Seguridad:** permiten mostrar solo la información necesaria.
 - **Reutilización:** evitan repetir consultas complejas.
 - **Simplificación:** facilitan el trabajo a usuarios que no conocen la estructura completa.
 - **Independencia lógica**: si cambian las tablas base, la vista puede mantenerse con el mismo nombre.
 
-## 1.4. Sintaxis básica para crear vistas (CREATE VIEW)
+## ⚡ 1.4. Sintaxis básica para crear vistas (CREATE VIEW)
 
 La sintaxis para crear una vista básica en SQL es:
 
@@ -57,7 +57,7 @@ WHERE departamento = 'Ventas';
 
 Esta vista mostrará solo los empleados que trabajan en el departamento de ventas, ocultando el resto de información.
 
-## 1.5. Ejemplo de vista simple para filtrar columnas
+## ⚡ 1.5. Ejemplo de vista simple para filtrar columnas
 
 Si se desea mostrar únicamente el nombre y la ciudad de los clientes:
 
@@ -75,9 +75,9 @@ SELECT * FROM vista_clientes_ciudad;
 
 Con esto, los usuarios podrán acceder a los datos relevantes sin conocer la estructura completa de la tabla `clientes`.
 
-# 2. Tipos de Vistas y Cláusulas Especiales
+# ✨ 2. Tipos de Vistas y Cláusulas Especiales
 
-## 2.1. Vistas simples: definición y operaciones permitidas
+## ⚡ 2.1. Vistas simples: definición y operaciones permitidas
 
 Una **vista simple** se basa en una sola tabla y no contiene funciones de agregación ni operaciones complejas como `JOIN`, `DISTINCT` o `GROUP BY`.
 
@@ -94,7 +94,7 @@ FROM empleados
 WHERE estado = 'ACTIVO';
 ```
 --- 
-## 2.2. Vistas complejas: restricciones y consideraciones
+## ⚡ 2.2. Vistas complejas: restricciones y consideraciones
 
 Una **vista compleja** se define utilizando más de una tabla o incluye funciones de agregación (`SUM`, `AVG`, etc.), cláusulas `GROUP BY`, `HAVING` o `JOIN`.
 
@@ -111,7 +111,7 @@ FROM ventas
 GROUP BY departamento;
 ```
 
-## 2.3. Inserciones, actualizaciones y eliminaciones a través de vistas
+## ⚡ 2.3. Inserciones, actualizaciones y eliminaciones a través de vistas
 
 | Tipo de Vista | `INSERT` | `UPDATE` | `DELETE` |
 | --- | --- | --- | --- |
@@ -121,7 +121,7 @@ GROUP BY departamento;
 - Las vistas simples permiten DML si existe correspondencia directa con la tabla base.
 - Las vistas complejas pueden restringir o impedir estas operaciones.
 
-## 2.4. Cláusula `WITH CHECK OPTION`
+## ⚡ 2.4. Cláusula `WITH CHECK OPTION`
 
 Evita que las operaciones DML provoquen que los datos queden fuera de las condiciones definidas por la vista.
 
@@ -136,7 +136,7 @@ WITH CHECK OPTION;
 
 Esta opción impide cambiar el departamento de un empleado desde esta vista, si el nuevo valor no cumple la condición.
 
-## 2.5. Cláusula `WITH READ ONLY`
+## ⚡ 2.5. Cláusula `WITH READ ONLY`
 
 Restringe completamente las operaciones de modificación a través de la vista. Es útil en vistas con agregaciones o uniones complejas.
 
@@ -150,7 +150,7 @@ GROUP BY departamento
 WITH READ ONLY;
 ```
 
-## 2.6. Modificación de vistas con `CREATE OR REPLACE VIEW`
+##⚡  2.6. Modificación de vistas con `CREATE OR REPLACE VIEW`
 
 Permite redefinir una vista sin necesidad de eliminarla previamente. Los permisos otorgados se conservan.
 
@@ -160,19 +160,14 @@ Permite redefinir una vista sin necesidad de eliminarla previamente. Los permiso
 CREATE OR REPLACE VIEW vista_empleados AS
 SELECT id, nombre, salario
 FROM empleados;
-```
 
-## 2.7. Eliminación de vistas con `DROP VIEW`
-
-Se utiliza cuando la vista ya no es necesaria.
-
-```sql
+-- Eliminación de vistas con `DROP VIEW`
 DROP VIEW nombre_vista;
 ```
 
 **Precaución:** si existen otras vistas o permisos que dependen de esta vista, pueden generarse errores. Es recomendable consultar `DBA_DEPENDENCIES` antes de su eliminación.
 
-# 3. Administración de Vistas desde el Diccionario de Datos
+# ✨ 3. Administración de Vistas desde el Diccionario de Datos
 
 ## 3.1. Consultas sobre vistas con `USER_VIEWS`, `ALL_VIEWS` y `DBA_VIEWS`
 
