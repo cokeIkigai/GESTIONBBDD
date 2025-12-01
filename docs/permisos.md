@@ -1,185 +1,139 @@
-UT 4: Gestión de Usuarios y Permisos en PostgreSQL
-Objetivos
+##  🔒 Gestión de Usuarios y Permisos en PostgreSQL
 
-Comprender los principios fundamentales de seguridad en bases de datos.
 
-Crear, modificar y eliminar roles y usuarios en PostgreSQL.
+#### 1. ¿Qué es un ROL en PostgreSQL?
 
-Conceder y revocar privilegios de sistema y de objetos.
+- En PostgreSQL, un rol es una entidad que puede representar:
 
-Gestionar permisos mediante roles heredables.
+- Un usuario real (si tiene LOGIN).
 
-Aplicar políticas de seguridad: límites, conexiones y configuración del rol.
-
-Activar y consultar auditoría básica mediante log_statement.
-
-Aplicar buenas prácticas de diseño de permisos en entornos multiusuario.
-
-1. Seguridad en Bases de Datos y Roles en PostgreSQL
-1.1 Seguridad en bases de datos
-
-Conjunto de políticas y permisos que controlan quién accede a los datos y qué puede hacer.
-
-Importancia:
-
-Protección de información sensible.
-
-Cumplimiento legal.
-
-Prevención de accesos indebidos.
-
-1.2 Seguridad del sistema vs seguridad de datos
-
-Seguridad del sistema: Conectarse (login), crear base de datos, crear otros roles.
-
-Seguridad de los datos: SELECT, INSERT, UPDATE, DELETE, REFERENCES.
-
-1.3 Conceptos fundamentales en PostgreSQL
-Roles (sustituyen a usuarios)
-
-En PostgreSQL NO existe un comando CREATE USER real. Internamente todo es un rol, con o sin capacidad de login.
-
+- Un grupo de permisos (si NO tiene LOGIN).
+  
+## Rol simple (sin login)
+```sql
+ -- Crear rol sin login	
+CREATE ROLE nombre;
+-- Crear usuario real	
 CREATE ROLE pepe LOGIN PASSWORD '1234';
+-- Borrar rol	
+DROP ROLE nombre;
+-- Forzar borrado	
+DROP OWNED BY nombre; DROP ROLE nombre;
+-- Renombrar rol	
+ALTER ROLE viejo RENAME TO nuevo;
+-- Cambiar contraseña	
+ALTER ROLE pepe PASSWORD 'xxx';
+-- Bloquear login	
+ALTER ROLE pepe NOLOGIN;
+-- Ver roles	
+SELECT rolname FROM pg_roles;
+``` 
+CREATE ROLE pepe LOGIN PASSWORD '1234';
+Crear un rol que actúa como usuario (con login)
 
+CREATE ROLE alumno1 LOGIN PASSWORD '1234';
 
-Los roles pueden:
+Crear un rol que es un grupo de permisos
+CREATE ROLE ventas;
 
-Tener contraseña.
+1. ¿Qué son los PRIVILEGIOS?
 
-Heredar permisos de otros roles.
+Los privilegios determinan qué puede hacer un rol dentro de la base de datos.
+Los más comunes sobre tablas son:
 
-Ser usados como grupos de permisos.
+SELECT → Leer datos
 
-Privilegios
+INSERT → Insertar filas
 
-Sobre objetos:
+UPDATE → Modificar
 
-SELECT, INSERT, UPDATE, DELETE
+DELETE → Borrar
 
-REFERENCES
+REFERENCES → Crear claves externas
 
-TRIGGER
+TRIGGER → Crear triggers
 
-Sobre el sistema:
+Ejemplo: dar permiso de lectura sobre una tabla
+GRANT SELECT ON customer TO solo_lectura;
 
-CREATEDB
+Ejemplo: dar permisos de lectura y escritura
+GRANT SELECT, INSERT, UPDATE ON invoice TO alumno1;
 
-CREATEROLE
+Ejemplo: dar todos los permisos sobre una tabla
+GRANT ALL PRIVILEGES ON track TO alumno1;
 
-SUPERUSER
+3. Quitar permisos (REVOKE)
 
-LOGIN
+Sirve para eliminar permisos que antes se concedieron.
 
-Ejemplo
-CREATE ROLE solo_lectura;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO solo_lectura;
-GRANT solo_lectura TO alumno1;
+Ejemplo: quitar UPDATE
+REVOKE UPDATE ON customer FROM alumno1;
 
-2. Gestión de Roles, Permisos y Seguridad
-2.1 Crear usuarios (roles con login)
-CREATE ROLE analista LOGIN PASSWORD 'Analista2025';
+Ejemplo: quitar todo
+REVOKE ALL PRIVILEGES ON track FROM alumno1;
 
-2.2 Modificar un rol
-ALTER ROLE analista PASSWORD 'NuevaPass2025';
-ALTER ROLE analista NOLOGIN;
+4. Roles como "grupos" de permisos
 
-2.3 Eliminar rol
-DROP ROLE analista;
+La mejor práctica es crear roles sin login que agrupen permisos.
+Luego asignar esos roles a los usuarios.
 
-2.4 Conceder privilegios sobre tablas
-Conceder
-GRANT SELECT ON customer TO analista;
-GRANT SELECT, INSERT ON invoice TO analista;
-
-Revocar
-REVOKE INSERT ON invoice FROM analista;
-
-Conceder permisos en todas las tablas del esquema
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO analista;
-
-2.5 Roles como grupos
-CREATE ROLE marketing;
-GRANT SELECT ON customer TO marketing;
-GRANT marketing TO analista01;
-
-2.6 Permisos de creación
-GRANT CREATE ON DATABASE chinook TO alumno1;
-GRANT USAGE, CREATE ON SCHEMA public TO alumno1;
-
-3. Políticas de Seguridad en PostgreSQL (equivalente a perfiles Oracle)
-
-PostgreSQL no tiene perfiles como Oracle, pero puedes configurar restricciones:
-
-Limitar número de conexiones
-ALTER ROLE etl_user CONNECTION LIMIT 1;
-
-Expulsar por inactividad (a nivel de servidor)
-
-Se recomienda vía postgresql.conf:
-
-idle_in_transaction_session_timeout = 30000   # 30s
-
-Política de contraseñas
-
-Puedes usar:
-
-PASSWORD
-
-VALID UNTIL
-
-Ejemplo:
-
-ALTER ROLE etl_user VALID UNTIL '2025-12-31';
-
-Bloqueo manual del usuario
-ALTER ROLE etl_user NOLOGIN;
-
-4. Auditoría y monitorización
-
-PostgreSQL no incluye auditoría fina por defecto (como Oracle FGA).
-
-Tiene:
-
-Log de sentencias
-
-En postgresql.conf:
-
-log_statement = 'all'
-
-
-Consultar logs.
-
-Ver roles y permisos
-SELECT * FROM pg_roles;
-SELECT * FROM information_schema.role_table_grants;
-SELECT * FROM information_schema.table_privileges;
-
-Mini proyecto guiado
-
-Crear un rol de solo lectura para Marketing en PostgreSQL
-
-Crear rol:
-
+4.1 Crear un rol de grupo
 CREATE ROLE marketing;
 
-
-Conceder lectura:
-
+4.2 Dar permisos al rol
 GRANT SELECT ON customer TO marketing;
 GRANT SELECT ON invoice TO marketing;
 
-
-Crear usuario:
-
-CREATE ROLE analista01 LOGIN PASSWORD 'Marketing2025!';
+4.3 Asignar el rol a un usuario
+GRANT marketing TO alumno1;
 
 
-Asignarle el rol:
+Ahora alumno1 hereda todos los permisos de marketing.
 
-GRANT marketing TO analista01;
+5. Permisos en todas las tablas del esquema
 
+PostgreSQL permite aplicar permisos en lote.
 
-Probar permisos:
+Dar SELECT a todas las tablas del esquema public
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO solo_lectura;
 
-SELECT * FROM customer LIMIT 5;     -- OK
-DELETE FROM customer;               -- ERROR
+Dar permisos futuros automáticamente
+
+Para que las nuevas tablas también tengan permisos:
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+GRANT SELECT ON TABLES TO solo_lectura;
+
+6. Permisos sobre bases de datos y esquemas
+Permitir crear objetos en un esquema
+GRANT CREATE ON SCHEMA public TO alumno1;
+
+Permitir conectarse a una base de datos
+GRANT CONNECT ON DATABASE chinook TO alumno1;
+
+7. Modificar roles
+Cambiar contraseña
+ALTER ROLE alumno1 PASSWORD 'Nueva1234';
+
+Quitar capacidad de login (bloquear usuario)
+ALTER ROLE alumno1 NOLOGIN;
+
+Restablecer login
+ALTER ROLE alumno1 LOGIN;
+
+8. Limitar número de conexiones
+
+Similar a “sesiones por usuario”.
+
+ALTER ROLE etl_user CONNECTION LIMIT 1;
+
+9. Establecer fecha de caducidad para contraseña
+ALTER ROLE etl_user VALID UNTIL '2026-01-01';
+
+10. Eliminar roles o usuarios
+Borrar usuario sin dependencias
+DROP ROLE alumno1;
+
+Borrar usuario con objetos creados (requiere transferir o borrar antes)
+DROP OWNED BY alumno1;
+DROP ROLE alumno1;
