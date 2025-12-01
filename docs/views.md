@@ -1,7 +1,5 @@
 # UT 5: Acceso a la Información. Vistas
 
----
-
 # Introducción
 
 - Una **vista** es una consulta almacenada que se presenta como una tabla virtual. 
