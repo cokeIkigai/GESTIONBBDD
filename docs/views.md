@@ -6,9 +6,9 @@
 - No contiene datos propios, sino que permite acceder a los datos reales de otras tablas mediante una consulta predefinida. 
 - Las vistas son una herramienta clave para **simplificar el acceso a la información** y para **aplicar políticas de seguridad**.
 
-### ✨ 1. Introducción a las Vistas SQL
+### 1. Introducción a las Vistas SQL
 
-####⚡ ¿Qué es una vista en SQL?
+⚡¿Qué es una vista en SQL?
 
 Una **vista** es una **representación virtual de una tabla**, generada a partir del resultado de una consulta SQL. 
 No almacena los datos, sino que actúa como una forma estructurada de acceder a ellos.
