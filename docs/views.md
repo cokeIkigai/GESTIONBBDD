@@ -6,7 +6,7 @@
 - No contiene datos propios, sino que permite acceder a los datos reales de otras tablas mediante una consulta predefinida. 
 - Las vistas son una herramienta clave para **simplificar el acceso a la información** y para **aplicar políticas de seguridad**.
 
-# ✨ 1. Introducción a las Vistas SQL
+### ✨ 1. Introducción a las Vistas SQL
 
 ⚡ ¿Qué es una vista en SQL?
 
