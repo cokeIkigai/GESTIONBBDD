@@ -162,31 +162,190 @@ ALTER ROLE empleado VALID UNTIL '2026-01-01';
 -- VALID UNTIL '2026-01-01' → Indica que la contraseña dejará de ser válida en esa fecha.
 -- A partir de ese día el usuario no podrá iniciar sesión hasta que un administrador le cambie o renueve la contraseña.
 ```
+Ejercicio: Diseño de Roles, Usuarios y Permisos en PostgreSQL
 
-Ejercicio:
+Tu objetivo es construir la arquitectura de seguridad completa de TechNova Corp. siguiendo estas indicaciones:
 
-Crea en PostgreSQL un conjunto completo de roles que representen la estructura de una empresa tecnológica. Debes crear roles sin LOGIN para utilizarlos como grupos de permisos, diferenciando claramente entre los roles que solo leen datos, los que leen y escriben, los que pueden modificar estructuras, y los roles administrativos. Los roles que debes crear son los siguientes: lectura_basica, lectura_informes, lectura_escritura, edicion_completa, admin_datos, dev_junior, dev_senior, dev_lider, marketing, sistemas, becarios, proyectos, soporte, auditoria y direccion. Cada uno debe tener un propósito específico.
+1. Crea las tablas del sistema
 
-El rol lectura_basica debe poder leer únicamente las tablas más simples del esquema public, como clientes y productos. El rol lectura_informes también tiene permisos de lectura, pero incluye además tablas como ventas, ingresos, pagos y cualquier tabla relacionada con informes. El rol lectura_escritura debe poder leer y escribir en tablas operativas, como proyectos, tareas, empleados. El rol edicion_completa debe incluir lectura, escritura y actualización pero no debe tener permisos para borrar tablas.
+La empresa maneja diferentes tipos de datos. Imagina que existen las siguientes tablas en el esquema public:
 
-El rol admin_datos debe ser el más potente dentro de los roles no administrativos del sistema: debe poder crear, modificar y borrar tablas dentro del esquema public, pero sin tener privilegios sobre toda la base de datos. El rol dev_junior debe tener permisos mínimos: solo lectura en proyectos, tareas y empleados. El rol dev_senior debe tener permisos de lectura y escritura en esas mismas tablas, y además poder crear y modificar sus propias tablas de pruebas. El rol dev_lider debe poder hacer todo lo que hacen los anteriores y además gestionar los permisos de otros desarrolladores del área.
+Tablas comerciales:
 
-El rol marketing debe tener permiso exclusivo de lectura sobre clientes, productos y ventas. El rol sistemas debe poder administrar objetos del esquema, crear tablas, borrar tablas y gestionar usuarios, pero sin tener acceso a leer información comercial como ventas o clientes. El rol becarios debe tener permisos muy reducidos: solo lectura de clientes y ninguna acción sobre otras tablas. El rol proyectos debe agrupar permisos de varios departamentos para que todos los roles que pertenezcan a él puedan consultar y actualizar tareas del área de gestión de proyectos.
+clientes
 
-El rol soporte debe poder leer y actualizar datos en tickets, incidencias y usuarios. El rol auditoria debe tener lectura total sobre todas las tablas de la base de datos, pero ningún permiso de escritura. El rol direccion debe tener capacidad para leer cualquier tabla, gestionar permisos de otros roles y conectarse con prioridad a la base de datos.
+productos
 
-Crea además varios usuarios reales: ana_junior, carlos_senior, laura_lider, maria_marketing, juan_sistemas, luis_becario, sofia_soporte, roberto_auditor, ceo_empresa. Asigna a cada usuario el rol que le corresponda con una relación 1:1, pero también añádeles roles secundarios: por ejemplo, laura_lider también debe pertenecer al rol proyectos, juan_sistemas debe pertenecer también al rol admin_datos, y luis_becario debe pertenecer también a lectura_basica.
+ventas
 
-Define permisos para cada rol según las características descritas anteriormente. Además crea varias reglas adicionales: todas las tablas nuevas del esquema public deben dar permisos automáticos de lectura a auditoria y permisos de lectura y escritura a dev_senior. También debes permitir que el rol marketing pueda conectarse a la base de datos, pero no crear objetos ni modificar estructuras. El rol sistemas debe poder conectarse y además debe tener un límite de conexión máxima de 2 sesiones simultáneas. El rol ceo_empresa debe poder conectarse en cualquier momento aunque los demás usuarios estén limitados.
+ingresos
 
-Después realiza las siguientes preguntas dentro del propio ejercicio:
-– Explica la diferencia entre un rol que solo tiene SELECT y un rol que tiene SELECT, INSERT y UPDATE.
-– Indica por qué es útil tener roles como lectura_basica y lectura_informes separados.
-– Indica cómo funcionaría la herencia de permisos si dev_junior y dev_senior pertenecen al rol proyectos.
-– Explica quién podría borrar tablas y quién no, según los roles creados.
-– Indica qué pasaría si un usuario pertenece tanto a un rol que tiene SELECT y a otro que tiene REVOKE SELECT.
-– Explica cómo cambiarías la contraseña a uno de los usuarios y cómo la bloquearías o reactivarías.
-– ¿Por qué auditoria no debe tener permisos de escritura?
-– ¿Qué ventaja tiene tener un rol como proyectos que agrupa permisos de varios perfiles?
+pagos
 
-Si lo quieres, te genero también la solución completa, un PDF, o una versión más corta.
+Tablas operativas:
+
+proyectos
+
+tareas
+
+empleados
+
+tickets
+
+incidencias
+
+usuarios_sistema
+
+Tablas internas para desarrolladores:
+
+dev_pruebas_junior
+
+dev_pruebas_senior
+
+Tablas estructurales:
+
+logs_sistema
+
+configuracion
+
+metricas
+
+No necesitas crear las tablas con columnas, solo el listado para poder asignar permisos.
+
+2. Crea los roles base (sin LOGIN)
+
+Debes crear roles que representen permisos específicos, separados por áreas y tipos de acceso. Los roles necesarios son:
+
+lectura_basica
+
+lectura_informes
+
+lectura_escritura
+
+edicion_completa
+
+admin_datos
+
+dev_junior
+
+dev_senior
+
+dev_lider
+
+marketing
+
+sistemas
+
+becarios
+
+proyectos
+
+soporte
+
+auditoria
+
+direccion
+
+Cada rol debe tener una misión clara dentro de TechNova.
+
+3. Define el propósito de cada rol
+
+Asigna, en el propio ejercicio, para qué sirve cada uno. Por ejemplo:
+
+lectura_basica: acceso mínimo, solo lectura a clientes y productos.
+
+lectura_informes: lectura avanzada (ventas, ingresos, pagos…).
+
+lectura_escritura: operaciones CRUD básicas en proyectos, tareas y empleados.
+
+edicion_completa: puede insertar, actualizar y borrar filas, pero no puede borrar tablas.
+
+admin_datos: puede crear, alterar y borrar tablas del esquema public, pero no administrar la base al completo.
+
+dev_junior: solo lectura en proyectos, tareas y empleados.
+
+dev_senior: lectura + escritura en esas tablas y creación de sus propias tablas.
+
+dev_lider: controla permisos sobre los desarrolladores.
+
+marketing: lectura de clientes, productos y ventas.
+
+sistemas: crear/borrar tablas, administrar roles, pero sin acceder a datos comerciales.
+
+becarios: permisos mínimos, solo lectura en clientes.
+
+proyectos: acceso común para consultar y modificar tareas y proyectos.
+
+soporte: lectura + actualización en tickets, incidencias y usuarios.
+
+auditoria: solo lectura absoluta sobre todas las tablas.
+
+direccion: lectura total y gestión de permisos global.
+
+4. Crea los usuarios reales
+
+Crea los usuarios:
+
+ana_junior
+
+carlos_senior
+
+laura_lider
+
+maria_marketing
+
+juan_sistemas
+
+luis_becario
+
+sofia_soporte
+
+roberto_auditor
+
+ceo_empresa
+
+Cada usuario debe heredar el rol principal apropiado. Además:
+
+laura_lider → también pertenece a proyectos.
+
+juan_sistemas → también pertenece a admin_datos.
+
+luis_becario → también pertenece a lectura_basica.
+
+5. Reglas de seguridad adicionales
+
+Debes definir dentro del ejercicio:
+
+Todas las tablas nuevas del esquema public deben otorgar automáticamente:
+
+SELECT a auditoria
+
+SELECT y INSERT/UPDATE a dev_senior
+
+El rol marketing debe poder conectarse a la BD, pero no crear objetos.
+
+El rol sistemas debe poder conectarse y tener un límite máximo de 2 conexiones.
+
+El rol direccion y el usuario ceo_empresa pueden conectarse siempre, sin restricciones de conexión.
+
+6. Preguntas de razonamiento obligatorio
+
+Dentro del mismo ejercicio, debes responder:
+
+Diferencia entre un rol que solo tiene SELECT y uno que tiene SELECT, INSERT y UPDATE.
+
+Por qué es útil separar lectura_basica y lectura_informes.
+
+Cómo funciona la herencia de permisos si dev_junior y dev_senior pertenecen al rol proyectos.
+
+Quién puede borrar tablas y quién no.
+
+Qué ocurre si un usuario pertenece a un rol con SELECT y a otro que tiene REVOKE SELECT.
+
+Cómo cambiar la contraseña de un usuario, bloquearlo o reactivarlo.
+
+Por qué auditoria no debe tener permisos de escritura.
+
+Qué ventaja tiene un rol como proyectos para agrupar permisos entre varios perfiles.
+
+
