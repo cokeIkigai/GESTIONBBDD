@@ -163,3 +163,30 @@ ALTER ROLE empleado VALID UNTIL '2026-01-01';
 -- A partir de ese día el usuario no podrá iniciar sesión hasta que un administrador le cambie o renueve la contraseña.
 ```
 
+Ejercicio:
+
+Crea en PostgreSQL un conjunto completo de roles que representen la estructura de una empresa tecnológica. Debes crear roles sin LOGIN para utilizarlos como grupos de permisos, diferenciando claramente entre los roles que solo leen datos, los que leen y escriben, los que pueden modificar estructuras, y los roles administrativos. Los roles que debes crear son los siguientes: lectura_basica, lectura_informes, lectura_escritura, edicion_completa, admin_datos, dev_junior, dev_senior, dev_lider, marketing, sistemas, becarios, proyectos, soporte, auditoria y direccion. Cada uno debe tener un propósito específico.
+
+El rol lectura_basica debe poder leer únicamente las tablas más simples del esquema public, como clientes y productos. El rol lectura_informes también tiene permisos de lectura, pero incluye además tablas como ventas, ingresos, pagos y cualquier tabla relacionada con informes. El rol lectura_escritura debe poder leer y escribir en tablas operativas, como proyectos, tareas, empleados. El rol edicion_completa debe incluir lectura, escritura y actualización pero no debe tener permisos para borrar tablas.
+
+El rol admin_datos debe ser el más potente dentro de los roles no administrativos del sistema: debe poder crear, modificar y borrar tablas dentro del esquema public, pero sin tener privilegios sobre toda la base de datos. El rol dev_junior debe tener permisos mínimos: solo lectura en proyectos, tareas y empleados. El rol dev_senior debe tener permisos de lectura y escritura en esas mismas tablas, y además poder crear y modificar sus propias tablas de pruebas. El rol dev_lider debe poder hacer todo lo que hacen los anteriores y además gestionar los permisos de otros desarrolladores del área.
+
+El rol marketing debe tener permiso exclusivo de lectura sobre clientes, productos y ventas. El rol sistemas debe poder administrar objetos del esquema, crear tablas, borrar tablas y gestionar usuarios, pero sin tener acceso a leer información comercial como ventas o clientes. El rol becarios debe tener permisos muy reducidos: solo lectura de clientes y ninguna acción sobre otras tablas. El rol proyectos debe agrupar permisos de varios departamentos para que todos los roles que pertenezcan a él puedan consultar y actualizar tareas del área de gestión de proyectos.
+
+El rol soporte debe poder leer y actualizar datos en tickets, incidencias y usuarios. El rol auditoria debe tener lectura total sobre todas las tablas de la base de datos, pero ningún permiso de escritura. El rol direccion debe tener capacidad para leer cualquier tabla, gestionar permisos de otros roles y conectarse con prioridad a la base de datos.
+
+Crea además varios usuarios reales: ana_junior, carlos_senior, laura_lider, maria_marketing, juan_sistemas, luis_becario, sofia_soporte, roberto_auditor, ceo_empresa. Asigna a cada usuario el rol que le corresponda con una relación 1:1, pero también añádeles roles secundarios: por ejemplo, laura_lider también debe pertenecer al rol proyectos, juan_sistemas debe pertenecer también al rol admin_datos, y luis_becario debe pertenecer también a lectura_basica.
+
+Define permisos para cada rol según las características descritas anteriormente. Además crea varias reglas adicionales: todas las tablas nuevas del esquema public deben dar permisos automáticos de lectura a auditoria y permisos de lectura y escritura a dev_senior. También debes permitir que el rol marketing pueda conectarse a la base de datos, pero no crear objetos ni modificar estructuras. El rol sistemas debe poder conectarse y además debe tener un límite de conexión máxima de 2 sesiones simultáneas. El rol ceo_empresa debe poder conectarse en cualquier momento aunque los demás usuarios estén limitados.
+
+Después realiza las siguientes preguntas dentro del propio ejercicio:
+– Explica la diferencia entre un rol que solo tiene SELECT y un rol que tiene SELECT, INSERT y UPDATE.
+– Indica por qué es útil tener roles como lectura_basica y lectura_informes separados.
+– Indica cómo funcionaría la herencia de permisos si dev_junior y dev_senior pertenecen al rol proyectos.
+– Explica quién podría borrar tablas y quién no, según los roles creados.
+– Indica qué pasaría si un usuario pertenece tanto a un rol que tiene SELECT y a otro que tiene REVOKE SELECT.
+– Explica cómo cambiarías la contraseña a uno de los usuarios y cómo la bloquearías o reactivarías.
+– ¿Por qué auditoria no debe tener permisos de escritura?
+– ¿Qué ventaja tiene tener un rol como proyectos que agrupa permisos de varios perfiles?
+
+Si lo quieres, te genero también la solución completa, un PDF, o una versión más corta.
