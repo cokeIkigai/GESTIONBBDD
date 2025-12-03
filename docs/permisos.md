@@ -1,92 +1,103 @@
 ##  🔒 Gestión de Usuarios y Permisos en PostgreSQL
 
-
-#### 1. ¿Qué es un ROL en PostgreSQL?
+### 1. ¿Qué es un ROL en PostgreSQL?
 
 - En PostgreSQL, un rol es una entidad que puede representar:
-
 - Un usuario real (si tiene LOGIN).
-
 - Un grupo de permisos (si NO tiene LOGIN).
-  
-## Rol simple (sin login)
+- Normalmente se le asocia a unos ciertos permisos.
+
+CREAR/BORRAR
 ```sql
  -- Crear rol sin login	
-CREATE ROLE nombre;
+CREATE ROLE Sergio;
+ -- Crear rol sin login	
+CREATE ROLE lectura;
+CREATE ROLE lectura_escritura;
+
 -- Crear usuario real	
 CREATE ROLE pepe LOGIN PASSWORD '1234';
 -- Borrar rol	
 DROP ROLE nombre;
 -- Forzar borrado	
 DROP OWNED BY nombre; DROP ROLE nombre;
+```
+MODIFICAR
+```sql
 -- Renombrar rol	
 ALTER ROLE viejo RENAME TO nuevo;
 -- Cambiar contraseña	
 ALTER ROLE pepe PASSWORD '7890';
 -- Bloquear login	
 ALTER ROLE pepe NOLOGIN;
--- Ver roles	
+-- Ver todos los roles que existen	
 SELECT rolname FROM pg_roles;
-``` 
-CREATE ROLE pepe LOGIN PASSWORD '1234';
-Crear un rol que actúa como usuario (con login)
+```
 
-CREATE ROLE alumno1 LOGIN PASSWORD '1234';
+### 2. ¿Qué es un privilegio?
 
-Crear un rol que es un grupo de permisos
-CREATE ROLE ventas;
+Un privilegio es una `autorización` que permite a un rol realizar  `acciones específicas` sobre objetos de la base de datos.
+Define qué puede hacer un usuario: 
 
-1. ¿Qué son los PRIVILEGIOS?
+`leer`, `insertar`, `modificar` o `borrar` datos.
+- Sin privilegios asignados, un rol no puede operar sobre esos objetos.
 
-Los privilegios determinan qué puede hacer un rol dentro de la base de datos.
-Los más comunes sobre tablas son:
+Recordamos: 
 
+```sql
 SELECT → Leer datos
-
 INSERT → Insertar filas
-
 UPDATE → Modificar
-
 DELETE → Borrar
-
 REFERENCES → Crear claves externas
-
 TRIGGER → Crear triggers
+```
 
-Ejemplo: dar permiso de lectura sobre una tabla
-GRANT SELECT ON customer TO solo_lectura;
+#### Los roles y los privilegios permiten:
+
+- `Proteger` datos sensibles
+- `Organizar` qué puede hacer cada usuario
+- Crear `estructuras de seguridad` fáciles de mantener
+- `Delegar` permisos según departamentos (marketing, ventas, administración…)
+- `Controlar` qué usuarios pueden conectarse o modificar información
+---
+
+#### Dar permiso de lectura sobre una tabla
+```sql
+-- Permiso [SELECT/INSERT/UPDATE/DELETE] ON <TABLA> TO <ROL>
+GRANT SELECT ON customer TO lectura;
 
 Ejemplo: dar permisos de lectura y escritura
-GRANT SELECT, INSERT, UPDATE ON invoice TO alumno1;
+GRANT SELECT, INSERT, UPDATE ON invoice TO lectura_escritura;
 
-Ejemplo: dar todos los permisos sobre una tabla
-GRANT ALL PRIVILEGES ON track TO alumno1;
-
-3. Quitar permisos (REVOKE)
+GRANT ALL PRIVILEGES ON track TO admin;
+```
+#### Quitar permisos (REVOKE)
 
 Sirve para eliminar permisos que antes se concedieron.
+```sql
+-- quitar UPDATE
+REVOKE UPDATE ON customer FROM lectura;
+-- quitar todo
+REVOKE ALL PRIVILEGES ON track FROM lectura_escritura;
+```
 
-Ejemplo: quitar UPDATE
-REVOKE UPDATE ON customer FROM alumno1;
+#### 3. Roles como "grupos" de permisos
 
-Ejemplo: quitar todo
-REVOKE ALL PRIVILEGES ON track FROM alumno1;
-
-4. Roles como "grupos" de permisos
-
-La mejor práctica es crear roles sin login que agrupen permisos.
-Luego asignar esos roles a los usuarios.
-
-4.1 Crear un rol de grupo
+- La mejor práctica es `crear role`s sin login que agrupen permisos.
+- Luego asignar esos roles a los usuarios.
+  
+```sql
+-- Crear un rol de grupo
 CREATE ROLE marketing;
 
-4.2 Dar permisos al rol
+-- Dar permisos al rol
 GRANT SELECT ON customer TO marketing;
 GRANT SELECT ON invoice TO marketing;
 
-4.3 Asignar el rol a un usuario
+-- Asignar el rol a un usuario
 GRANT marketing TO alumno1;
-
+```
 
 Ahora alumno1 hereda todos los permisos de marketing.
 
