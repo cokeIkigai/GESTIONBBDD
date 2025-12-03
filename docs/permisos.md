@@ -189,14 +189,14 @@ Debes crear roles que representen permisos específicos, separados por áreas y 
 - `lectura_basica`: acceso mínimo, solo lectura a clientes y productos.
 - `lectura_informes`: lectura avanzada (ventas, ingresos, pagos…), es leer a todas las tablas.
 - `lectura_escritura`: operaciones CRUD básicas en proyectos, tareas y empleados.
-<br>
+    <br>
 - `edicion_completa`: puede insertar, actualizar y borrar filas, pero no puede borrar tablas.
 - `admin_datos`: puede crear, alterar y borrar tablas del esquema public, pero no administrar la base al completo.
-<br>
+    <br>
 - `dev_junior`: solo lectura en proyectos, tareas y empleados.
 - `dev_senior`: lectura + escritura en esas tablas y creación de sus propias tablas. 
 - `dev_lider`: controla permisos sobre los desarrolladores.
-  <br>
+    <br>
 - `marketing`: lectura de clientes, productos y ventas.
 - `sistemas`: crear/borrar tablas, administrar roles, pero sin acceder a datos comerciales.
   <br>
