@@ -162,9 +162,14 @@ ALTER ROLE empleado VALID UNTIL '2026-01-01';
 -- VALID UNTIL '2026-01-01' → Indica que la contraseña dejará de ser válida en esa fecha.
 -- A partir de ese día el usuario no podrá iniciar sesión hasta que un administrador le cambie o renueve la contraseña.
 ```
-Ejercicio: Diseño de Roles, Usuarios y Permisos en PostgreSQL
 
-Tu objetivo es construir la arquitectura de seguridad completa de TechNova Corp. siguiendo estas indicaciones:
+---
+
+## Ejercicio: Diseño de Roles, Usuarios y Permisos en PostgreSQL
+
+Se deberá realizar durante el horario de clase y deberás `subirlo` a tu repositorio github. `Crea` un repositorio que se llame `GestionBBDD` y añade el archivo en dicho repositorio. Llama al archivo `permisos.txt`.
+
+Tu objetivo es construir la arquitectura de seguridad completa de TechNova Corp. siguiendo estas indicaciones
 
 #### 1. Crea las tablas del sistema
 
