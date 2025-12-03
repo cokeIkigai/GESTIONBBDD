@@ -4,3 +4,5 @@
 
 [Triggers](docs/triggers.md)
 
+[Permisos](docs/permisos.md)
+
