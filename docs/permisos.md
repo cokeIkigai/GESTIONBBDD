@@ -166,186 +166,121 @@ Ejercicio: Diseño de Roles, Usuarios y Permisos en PostgreSQL
 
 Tu objetivo es construir la arquitectura de seguridad completa de TechNova Corp. siguiendo estas indicaciones:
 
-1. Crea las tablas del sistema
+#### 1. Crea las tablas del sistema
 
 La empresa maneja diferentes tipos de datos. Imagina que existen las siguientes tablas en el esquema public:
 
-Tablas comerciales:
+- **Tablas comerciales:** clientes, productos, ventas, ingresos, pagos.
+- **Tablas operativas:** proyectos, tareas, empleados, tickets, incidencias, usuarios_sistema.
+- **Tablas internas para desarrolladores:** dev_pruebas_junior, dev_pruebas_senior.
+- **Tablas estructurales:** logs_sistema, configuracion, metricas.
 
-clientes
+*No necesitas crear las tablas con columnas, solo el listado para poder asignar permisos.*
 
-productos
-
-ventas
-
-ingresos
-
-pagos
-
-Tablas operativas:
-
-proyectos
-
-tareas
-
-empleados
-
-tickets
-
-incidencias
-
-usuarios_sistema
-
-Tablas internas para desarrolladores:
-
-dev_pruebas_junior
-
-dev_pruebas_senior
-
-Tablas estructurales:
-
-logs_sistema
-
-configuracion
-
-metricas
-
-No necesitas crear las tablas con columnas, solo el listado para poder asignar permisos.
-
-2. Crea los roles base (sin LOGIN)
+#### 2. Crea los roles base (sin LOGIN)
 
 Debes crear roles que representen permisos específicos, separados por áreas y tipos de acceso. Los roles necesarios son:
 
-lectura_basica
-
-lectura_informes
-
-lectura_escritura
-
-edicion_completa
-
-admin_datos
-
-dev_junior
-
-dev_senior
-
-dev_lider
-
-marketing
-
-sistemas
-
-becarios
-
-proyectos
-
-soporte
-
-auditoria
-
-direccion
-
-Cada rol debe tener una misión clara dentro de TechNova.
-
-3. Define el propósito de cada rol
-
-Asigna, en el propio ejercicio, para qué sirve cada uno. Por ejemplo:
-
-lectura_basica: acceso mínimo, solo lectura a clientes y productos.
-
-lectura_informes: lectura avanzada (ventas, ingresos, pagos…).
-
-lectura_escritura: operaciones CRUD básicas en proyectos, tareas y empleados.
-
-edicion_completa: puede insertar, actualizar y borrar filas, pero no puede borrar tablas.
-
-admin_datos: puede crear, alterar y borrar tablas del esquema public, pero no administrar la base al completo.
-
-dev_junior: solo lectura en proyectos, tareas y empleados.
-
-dev_senior: lectura + escritura en esas tablas y creación de sus propias tablas.
-
-dev_lider: controla permisos sobre los desarrolladores.
-
-marketing: lectura de clientes, productos y ventas.
-
-sistemas: crear/borrar tablas, administrar roles, pero sin acceder a datos comerciales.
-
-becarios: permisos mínimos, solo lectura en clientes.
-
-proyectos: acceso común para consultar y modificar tareas y proyectos.
-
-soporte: lectura + actualización en tickets, incidencias y usuarios.
-
-auditoria: solo lectura absoluta sobre todas las tablas.
-
-direccion: lectura total y gestión de permisos global.
-
-4. Crea los usuarios reales
-
-Crea los usuarios:
-
-ana_junior
-
-carlos_senior
-
-laura_lider
-
-maria_marketing
-
-juan_sistemas
-
-luis_becario
-
-sofia_soporte
-
-roberto_auditor
-
-ceo_empresa
-
-Cada usuario debe heredar el rol principal apropiado. Además:
-
-laura_lider → también pertenece a proyectos.
-
-juan_sistemas → también pertenece a admin_datos.
-
-luis_becario → también pertenece a lectura_basica.
-
-5. Reglas de seguridad adicionales
-
-Debes definir dentro del ejercicio:
-
-Todas las tablas nuevas del esquema public deben otorgar automáticamente:
-
-SELECT a auditoria
-
-SELECT y INSERT/UPDATE a dev_senior
-
-El rol marketing debe poder conectarse a la BD, pero no crear objetos.
-
-El rol sistemas debe poder conectarse y tener un límite máximo de 2 conexiones.
-
-El rol direccion y el usuario ceo_empresa pueden conectarse siempre, sin restricciones de conexión.
-
-6. Preguntas de razonamiento obligatorio
-
-Dentro del mismo ejercicio, debes responder:
-
-Diferencia entre un rol que solo tiene SELECT y uno que tiene SELECT, INSERT y UPDATE.
-
-Por qué es útil separar lectura_basica y lectura_informes.
-
-Cómo funciona la herencia de permisos si dev_junior y dev_senior pertenecen al rol proyectos.
-
-Quién puede borrar tablas y quién no.
-
-Qué ocurre si un usuario pertenece a un rol con SELECT y a otro que tiene REVOKE SELECT.
-
-Cómo cambiar la contraseña de un usuario, bloquearlo o reactivarlo.
-
-Por qué auditoria no debe tener permisos de escritura.
-
-Qué ventaja tiene un rol como proyectos para agrupar permisos entre varios perfiles.
+- `lectura_basica`: acceso mínimo, solo lectura a clientes y productos.
+- `lectura_informes`: lectura avanzada (ventas, ingresos, pagos…), es leer a todas las tablas.
+- `lectura_escritura`: operaciones CRUD básicas en proyectos, tareas y empleados.
+- `edicion_completa`: puede insertar, actualizar y borrar filas, pero no puede borrar tablas.
+- `admin_datos`: puede crear, alterar y borrar tablas del esquema public, pero no administrar la base al completo.
+- `dev_junior`: solo lectura en proyectos, tareas y empleados.
+- `dev_senior`: lectura + escritura en esas tablas y creación de sus propias tablas. 
+- `dev_lider`: controla permisos sobre los desarrolladores.
+- `marketing`: lectura de clientes, productos y ventas.
+- `sistemas`: crear/borrar tablas, administrar roles, pero sin acceder a datos comerciales.
+- `becarios`: permisos mínimos, solo lectura en clientes.
+- `proyectos`: acceso común para consultar y modificar tareas y proyectos.
+- `soporte`: lectura + actualización en tickets, incidencias y usuarios.
+- `auditoria`: solo lectura absoluta sobre todas las tablas.
+- `direccion`: lectura total y gestión de permisos global.
+
+#### 4. Crea los usuarios reales
+Autorizaciones de cada usuario (sin mencionar roles)
+
+**ana_junior**
+- Puede consu4ltar información relacionada con proyectos, tareas y empleados
+- No puede modificar datos.
+- No puede crear tablas ni estructuras nuevas.
+- No debe tener acceso a datos comerciales ni financieros.
+
+**carlos_senior**
+- Puede consultar y modificar información de proyectos, tareas y empleados.
+- Puede crear tablas propias para hacer pruebas internas.
+- No tiene permiso para modificar estructuras críticas del sistema.
+- No puede ver información financiera ni comercial.
+
+**laura_lider**
+- Puede consultar y modificar datos operativos (proyectos, tareas, empleados).
+- Puede crear sus propias tablas de pruebas.
+- Puede gestionar permisos de otros usuarios dentro del área de desarrollo.
+- Puede participar en las operaciones del área de gestión de proyectos (consulta y actualización).
+- No debe tener acceso a datos comerciales o financieros.
+
+**maria_marketing**
+- Puede consultar únicamente datos relacionados con clientes, productos y ventas.
+- No puede modificar información.
+- No puede ver información interna (empleados, proyectos, tareas).
+- No puede acceder a datos de finanzas profundas más allá de lo necesario para análisis simples.
+- Puede conectarse a la base de datos, pero no puede crear objetos.
+
+**juan_sistemas**
+- Puede crear, modificar y borrar tablas dentro del sistema.
+- Puede administrar usuarios y sus permisos.
+- No puede ver datos comerciales sensibles (clientes, ventas, ingresos).
+- Puede conectarse a la base de datos, pero tiene un límite de sesiones activas.
+- Además tiene capacidad para administrar objetos de datos de manera avanzada.
+
+**luis_becario**
+- Puede consultar únicamente información muy básica, como el listado de clientes.
+- No puede ver productos financieros, ventas ni información interna del personal.
+- No puede modificar datos.
+- No puede crear tablas ni objetos nuevos.
+- Puede consultar también las tablas generales más simples necesarias para formación básica.
+
+**sofia_soporte**
+- Puede consultar y actualizar información relacionada con tickets, incidencias y usuarios del sistema.
+- No puede borrar tablas ni crear estructuras nuevas.
+- No puede acceder a datos comerciales o financieros.
+- No tiene permiso sobre datos del área de desarrollo o administración interna.
+
+**roberto_auditor**
+- Puede ver absolutamente todas las tablas de toda la base de datos.
+- No puede modificar ningún dato.
+- No puede crear ni borrar tablas.
+- No debe tener ninguna capacidad de escritura para mantener la integridad de las auditorías.
+  
+**ceo_empresa**
+- Puede consultar cualquier información de cualquier tabla de la base de datos.
+- Tiene privilegios para gestionar permisos y usuarios de la organización.
+- Siempre puede conectarse a la base de datos, incluso si otros usuarios están limitados por conexiones simultáneas.
+- No está limitado por restricciones de acceso funcional o departamental.
+  
+
+**EXTRA:**
+- laura_lider → también pertenece a proyectos.
+- juan_sistemas → también pertenece a admin_datos.
+- luis_becario → también pertenece a lectura_basica.
+  
+**Otorgar automáticamente:**
+
+- Tabla auditoria vea todas las tablas.
+- dev_senior pueda ver, insertar y updatear todas las tablas
+- El rol marketing debe poder conectarse a la BD, pero no crear objetos.
+- El rol sistemas debe poder conectarse y tener un límite máximo de 2 conexiones.
+- El rol direccion y el usuario ceo_empresa pueden conectarse siempre, sin restricciones de conexión.
+--- 
+### Preguntas de razonamiento obligatorio
+
+
+- Diferencia entre un rol que solo tiene SELECT y uno que tiene SELECT, INSERT y UPDATE.
+- Por qué es útil separar lectura_basica y lectura_informes.
+- Cómo funciona la herencia de permisos si dev_junior y dev_senior pertenecen al rol proyectos.
+- Quién puede borrar tablas y quién no.
+- Qué ocurre si un usuario pertenece a un rol con SELECT y a otro que tiene REVOKE SELECT.
+- Por qué auditoria no debe tener permisos de escritura.
+- Qué ventaja tiene un rol como proyectos para agrupar permisos entre varios perfiles.
 
 
