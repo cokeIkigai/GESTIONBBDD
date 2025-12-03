@@ -26,10 +26,16 @@ MODIFICAR
 ```sql
 -- Renombrar rol	
 ALTER ROLE viejo RENAME TO nuevo;
+
 -- Cambiar contraseña	
 ALTER ROLE pepe PASSWORD '7890';
+
 -- Bloquear login	
-ALTER ROLE pepe NOLOGIN;
+ALTER ROLE pepe NOLOGIN; (bloquear usuario)
+
+-- Restablecer login
+ALTER ROLE alumno1 LOGIN;
+
 -- Ver todos los roles que existen	
 SELECT rolname FROM pg_roles;
 ```
@@ -75,17 +81,19 @@ GRANT ALL PRIVILEGES ON track TO admin;
 #### Quitar permisos (REVOKE)
 
 Sirve para eliminar permisos que antes se concedieron.
+
 ```sql
 -- quitar UPDATE
 REVOKE UPDATE ON customer FROM lectura;
 -- quitar todo
-REVOKE ALL PRIVILEGES ON track FROM lectura_escritura;
+REVOKE ALL PRIVILEGES ON  FROM lectura_escritura;
+
 ```
 
-#### 3. Roles como "grupos" de permisos
+### 3. Roles como "grupos" de permisos
 
-- La mejor práctica es `crear role`s sin login que agrupen permisos.
-- Luego asignar esos roles a los usuarios.
+- La mejor práctica es `crear roles` sin login que agrupen permisos.
+- Luego `asignar` esos roles a los usuarios.
   
 ```sql
 -- Crear un rol de grupo
@@ -96,55 +104,62 @@ GRANT SELECT ON customer TO marketing;
 GRANT SELECT ON invoice TO marketing;
 
 -- Asignar el rol a un usuario
-GRANT marketing TO alumno1;
+GRANT marketing TO empleado1;
+-- Dar SELECT a todas las tablas del esquema public
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO lectura_escritura;
 ```
 
-Ahora alumno1 hereda todos los permisos de marketing.
+Ahora empleado1 hereda todos los permisos de marketing.
+Con esto estamos asociadno roles a usuarios que ya tenemos creados previamente y no es necesario ir dando permisos de uno en uno.
 
-5. Permisos en todas las tablas del esquema
+--- 
 
-PostgreSQL permite aplicar permisos en lote.
-
-Dar SELECT a todas las tablas del esquema public
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO solo_lectura;
-
-Dar permisos futuros automáticamente
-
+### 4. Dar permisos futuros automáticamente
 Para que las nuevas tablas también tengan permisos:
 
+```sql
 ALTER DEFAULT PRIVILEGES IN SCHEMA public
 GRANT SELECT ON TABLES TO solo_lectura;
+```
 
-6. Permisos sobre bases de datos y esquemas
+- `ALTER DEFAULT PRIVILEGES` → Cambia los permisos que tendrán por defecto los objetos nuevos que se creen.
+- `IN SCHEMA public` → Indica que se aplicará a las tablas nuevas creadas dentro del esquema public.
+- `GRANT SELECT` → Permiso que tendrán automáticamente las nuevas tablas: lectura.
+- `ON TABLES` → Se aplica específicamente a tablas recién creadas.
+- `TO lectura` → Rol o usuario que recibirá esos permisos por defecto.
+---
+
+### 5. Permisos sobre bases de datos y esquemas
+
 Permitir crear objetos en un esquema
+- Da permiso para `crear` objetos (tablas, vistas, funciones…).
+```sql   
 GRANT CREATE ON SCHEMA public TO alumno1;
-
+-- GRANT CREATE → Da permiso para crear objetos (tablas, vistas, funciones…).
+-- ON SCHEMA public → Ese permiso se aplica dentro del esquema public.
+-- TO empleado1 → El usuario empleado1 podrá crear objetos allí.
+```
 Permitir conectarse a una base de datos
-GRANT CONNECT ON DATABASE chinook TO alumno1;
+```sql
+GRANT CONNECT ON DATABASE chinook TO empleado1;
 
-7. Modificar roles
-Cambiar contraseña
-ALTER ROLE alumno1 PASSWORD 'Nueva1234';
+-- GRANT CONNECT → Autoriza a conectarse a esa base de datos.
+-- ON DATABASE chinook → Afecta a la base de datos chinook.
+-- TO empleado1 → Ese usuario puede entrar a la base de datos, pero no hacer nada más si no tiene otros permisos.
+```
+---
 
-Quitar capacidad de login (bloquear usuario)
-ALTER ROLE alumno1 NOLOGIN;
+### 6. Limitar número de conexiones por usuario
 
-Restablecer login
-ALTER ROLE alumno1 LOGIN;
+```sql
+ALTER ROLE empleado1 CONNECTION LIMIT 1;
+-- ALTER ROLE empleado1 → Modifica las propiedades del rol empleado1.
+-- CONNECTION LIMIT 1 → Ese usuario solo puede tener una conexión activa al mismo tiempo.
+```
+### 7. Fecha de caducidad de la contraseña
+```sql
+ALTER ROLE empleado VALID UNTIL '2026-01-01';
+-- VALID UNTIL '2026-01-01' → Indica que la contraseña dejará de ser válida en esa fecha.
+-- A partir de ese día el usuario no podrá iniciar sesión hasta que un administrador le cambie o renueve la contraseña.
+```
 
-8. Limitar número de conexiones
-
-Similar a “sesiones por usuario”.
-
-ALTER ROLE etl_user CONNECTION LIMIT 1;
-
-9. Establecer fecha de caducidad para contraseña
-ALTER ROLE etl_user VALID UNTIL '2026-01-01';
-
-10. Eliminar roles o usuarios
-Borrar usuario sin dependencias
-DROP ROLE alumno1;
-
-Borrar usuario con objetos creados (requiere transferir o borrar antes)
-DROP OWNED BY alumno1;
-DROP ROLE alumno1;
