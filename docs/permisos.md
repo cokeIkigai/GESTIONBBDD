@@ -63,7 +63,7 @@ TRIGGER → Crear triggers
 
 - `Proteger` datos sensibles
 - `Organizar` qué puede hacer cada usuario
-- Crear `estructuras de seguridad` fáciles de mantener
+- `Crear` estructuras de seguridad fáciles de mantener
 - `Delegar` permisos según departamentos (marketing, ventas, administración…)
 - `Controlar` qué usuarios pueden conectarse o modificar información
 ---
