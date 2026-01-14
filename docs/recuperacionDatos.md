@@ -69,17 +69,42 @@ DROP TABLE pedidos;
 
 - Permite restauración selectiva
 
-Ejemplo
+*Ejemplo*
+
+**Restaurar una Base de Datos:**
 ```console
- pg_dump -U postgres -F c -f backup_empresa.dump <nombreBaseDatos>
+ pg_dump -U postgres -F c -f backup_empresa.dump empresa
 ```
+|Comando|Descripción|
+|---|---|
+|pg_dump| *Crea el backup* |
+|-U postgres|*Usuario de PostgreSQL*|
+|-F c|*custom → permite restaurar tablas*|
+|-f backup_empresa.dump|*Donde se guarda el backup*| 
+|empresa|*Base de datos*|
+
+**Restaurar una Tabla**
+
+```console
+pg_dump -U postgres -F c -t clientes -f backup_clientes.dump empresa
+```
+
+**-t clientes:** Referencia a la tabla
 
 ### Restauración con pg_restore
 
 Permite restaurar todo o partes concretas.
 
+Restaurar Base de Datos:
+
 ```console
 pg_restore -U postgres -d empresa backup_empresa.dump
+```
+
+Restaurar Tabla:
+
+```console
+pg_restore -U postgres -d empresa -t clientes backup_empresa.dump
 ```
 
 También se puede restaurar solo tablas o esquemas.
