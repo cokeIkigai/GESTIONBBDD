@@ -1,182 +1,144 @@
-# Recuperación de Datos
+# UT 8: Recuperación de Datos (PostgreSQL)
 
-La `pérdida` de datos puede venir por `fallos` de hardware, `errores` humanos o `corrupción`. El objetivo es volver a un estado anterior fiable, con la mínima pérdida posible y en el menor tiempo.
+### La recuperación de datos tiene como finalidad:
 
-**¿Qué pasa si alguien borra una tabla accidentalmente?**
+- Garantizar la disponibilidad e integridad de la información.
 
-**¿Podemos recuperar datos concretos sin restaurar toda la base?**
+- Reducir el tiempo de inactividad (downtime).
 
-**¿Cómo debe diseñarse una estrategia profesional de recuperación?**
+- Minimizar la pérdida de datos (RPO).
 
---- 
-### Fundamentos de Recuperación
+- Restaurar el sistema a un estado consistente.
 
-**1.** `Garantizar` disponibilidad, integridad y continuidad.
+### En PostgreSQL distinguimos dos enfoques:
 
-**2.** `Reducir` al mínimo la pérdida de datos.
+**Recuperación lógica**: Recupera objetos o datos concretos (tablas, esquemas, filas).
 
-**3.** `Restaurar` el sistema a un punto coherente anterior.
+**Recuperación física**: Recupera el clúster completo de PostgreSQL (datos + WAL).
 
-#### Elegir la estrategia según el fallo:
+### Escenarios comunes de pérdida de datos
 
-- **Recuperación física:** ficheros completos, datafiles, clusters, backups del sistema.
+Situaciones habituales en entornos reales:
 
-- **Recuperación lógica:** tablas, registros o estados previos usando herramientas de logs/undo.
+**Errores humanos**
+```sql
+DELETE FROM clientes;
+DROP TABLE pedidos;
+```
 
-#### Escenarios típicos de fallo
+**Fallos de hardware**
 
-- `Fallos` de hardware.
+- Discos dañados
 
-- `Fallos` de software o corrupción.
+- Pérdida del directorio data
 
-- `Errores` humanos (DROP TABLE, UPDATE masivo mal hecho).
+- Fallos de software
 
-*--Ejemplo de riesgo: DROP TABLE empleados(Sin backup o logs, es irrecuperable)--*
+- Corrupción de datos
 
-2.3 Herramientas en PostgreSQL
+- Actualizaciones fallidas
 
-En PostgreSQL no existe RMAN, pero sí alternativas equivalentes:
+- Ciberataques
 
-Herramienta	Tipo	Uso típico
-pg_dump / pg_restore	Lógico	Copias de esquemas, tablas o BD completas.
-pg_basebackup	Física	Réplica o copia completa del cluster.
-PITR (Point-In-Time Recovery)	Física temporal	Restaurar la BD a un instante anterior usando WAL.
-WAL (Write-Ahead Logging)	Registro	Permite recuperación a puntos previos.
-3. Copias de Seguridad en PostgreSQL
-3.1 Copias lógicas (pg_dump)
+- Ransomware
 
-Adecuadas para recuperar objetos concretos.
+- Accesos no autorizados
 
-Ejemplos:
+*Sin backups, la pérdida suele ser irreversible.*
 
-pg_dump empresa > empresa.sql
-pg_dump -t empleados empresa > empleados.sql
-pg_restore -d empresa restauracion.dump
+---
 
+## Herramientas de recuperación en PostgreSQL
 
-Ventajas:
+|Herramienta	|Tipo	|Uso principal|
+|---|---|---|
+|pg_dump	|Lógico	|Backups de bases de datos u objetos|
+|pg_restore	|Lógico	|Restauración selectiva|
+|pg_basebackup	|Físico	|Copia completa del clúster|
+|WAL	|Físico	|Recuperación a punto en el tiempo (PITR)|
 
-Granularidad (tablas, esquemas, BD).
+## Copias de Seguridad en PostgreSQL
 
-Portables entre versiones.
+### Backup lógico con `pg_dump`
 
-Limitaciones:
+- Es el método más usado en entornos pequeños y medianos.
 
-No sirven para PITR ni para sistemas muy grandes en caliente.
+- Copia estructura y datos
 
-3.2 Copias físicas (pg_basebackup)
+- Portable entre versiones
 
-Copia byte a byte del cluster completo. Necesarias para PITR.
+- Permite restauración selectiva
 
-pg_basebackup -D /backups/full -Ft -z -P -U replicacion
+Ejemplo
+pg_dump -U postgres -F c -f backup_empresa.dump empresa
 
+empresa: nombre de la base de datos
 
-Incluye:
+2.2 Restauración con pg_restore
 
-Archivos de datos.
+Permite restaurar todo o partes concretas.
 
-Configuración.
+pg_restore -U postgres -d empresa backup_empresa.dump
 
-WAL (si se configura).
 
-3.3 WAL y Point-In-Time Recovery (PITR)
+También se puede restaurar solo tablas o esquemas.
 
-Permite volver a un instante exacto, ideal ante errores humanos.
+2.3 Backup físico con pg_basebackup
 
-Pasos generales:
+Copia todo el clúster PostgreSQL.
 
-Tener activado archive_mode y archive_command.
+Características
 
-Restaurar un backup físico.
+Incluye datos, configuraciones y estado interno
 
-Incluir los WAL archivados.
+Necesario para recuperación ante desastre
 
-Especificar el punto de recuperación:
+Base para PITR (Point-In-Time Recovery)
 
-recovery_target_time = '2025-02-10 14:35:00'
+Ejemplo
+pg_basebackup -U postgres -D /backups/base -Fp -Xs -P
 
-4. Recuperación Lógica
-4.1 Restauración de objetos específicos
+2.4 WAL y recuperación a un punto en el tiempo (PITR)
 
-Usando copias lógicas:
+PostgreSQL registra todos los cambios en WAL (Write-Ahead Logs).
 
-pg_restore -d empresa -t empleados empleados.dump
+Esto permite:
 
+Volver a un instante concreto
 
-Ideal cuando:
+Recuperarse tras errores humanos o ataques
 
-Se borra una tabla concreta.
+Requiere:
 
-Se necesita restaurar un esquema aislado.
+archive_mode = on
 
-4.2 Restauración por error humano
+archive_command configurado
 
-Si activaste PITR:
+3. Estrategias de Recuperación y Buenas Prácticas
+3.1 Tipos de restauración
 
-Restaura el cluster a un punto anterior al fallo.
+Restauración lógica
 
-Exporta solo lo necesario.
+Tablas o bases concretas
 
-Importa en el cluster actual sin perder cambios posteriores.
+Menor impacto
 
-5. Estrategias de Restauración
-5.1 Restauración completa
+Restauración física
 
-Restaurar todo el sistema desde backup físico + WAL.
+Todo el sistema
 
-Útil cuando:
+Tras fallos graves
 
-El servidor está corrupto.
+3.2 Buenas prácticas profesionales
 
-Se han perdido varios ficheros de datos.
+Realizar backups regulares
 
-5.2 Restauración parcial
+Guardarlos fuera del servidor
 
-Tablas concretas (pg_dump/pg_restore).
+Probar restauraciones periódicamente
 
-Esquemas completos.
+Automatizar con scripts y cron
 
-Porciones de datos mediante scripts preparados.
+Documentar procedimientos
 
-5.3 Ejemplo de recuperación PITR
-
-Detener PostgreSQL.
-
-Restaurar backup físico.
-
-Copiar WAL archivados.
-
-Crear recovery.signal y configurar destino.
-
-Arrancar.
-
-6. Buenas Prácticas
-
-Establecer frecuencia clara de backups (diaria física + lógicas selectivas).
-
-Probar restauraciones periódicamente.
-
-Documentar el proceso de recuperación.
-
-Monitorizar el espacio de WAL.
-
-Validar backups:
-
-pg_verifybackup /backups/full
-
-
-Separar almacenamiento de datos y copias.
-
-Automatizar tareas con cron o systemd timers.
-
-7. Esquema Resumen para tus Alumnos
-
-Backup lógico → tablas/esquemas → pg_dump
-
-Backup físico → cluster completo → pg_basebackup
-
-Recuperación por error humano → PITR + export/import parcial
-
-Recuperación rápida → objetos concretos vía pg_restore
-
-Estrategia profesional → combinación de ambas + validación periódica
+Un backup que nunca se ha restaurado no es un backup fiable.
