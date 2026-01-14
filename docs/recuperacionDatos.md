@@ -1,4 +1,4 @@
-# UT 8: Recuperación de Datos (PostgreSQL)
+# Recuperación de Datos (PostgreSQL)
 
 ### La recuperación de datos tiene como finalidad:
 
@@ -70,43 +70,42 @@ DROP TABLE pedidos;
 - Permite restauración selectiva
 
 Ejemplo
-pg_dump -U postgres -F c -f backup_empresa.dump empresa
+```console
+ pg_dump -U postgres -F c -f backup_empresa.dump <nombreBaseDatos>
+```
 
-empresa: nombre de la base de datos
-
-2.2 Restauración con pg_restore
+### Restauración con pg_restore
 
 Permite restaurar todo o partes concretas.
 
+```console
 pg_restore -U postgres -d empresa backup_empresa.dump
-
+```
 
 También se puede restaurar solo tablas o esquemas.
 
-2.3 Backup físico con pg_basebackup
+### Backup físico con pg_basebackup
 
-Copia todo el clúster PostgreSQL.
+- Copia todo el clúster PostgreSQL.
 
-Características
+- Incluye datos, configuraciones y estado interno
 
-Incluye datos, configuraciones y estado interno
+- Necesario para recuperación ante desastre
 
-Necesario para recuperación ante desastre
-
-Base para PITR (Point-In-Time Recovery)
+- Base para PITR (Point-In-Time Recovery)
 
 Ejemplo
 pg_basebackup -U postgres -D /backups/base -Fp -Xs -P
 
-2.4 WAL y recuperación a un punto en el tiempo (PITR)
+### WAL y recuperación a un punto en el tiempo (PITR)
 
 PostgreSQL registra todos los cambios en WAL (Write-Ahead Logs).
 
 Esto permite:
 
-Volver a un instante concreto
+- Volver a un instante concreto
 
-Recuperarse tras errores humanos o ataques
+- Recuperarse tras errores humanos o ataques
 
 Requiere:
 
@@ -114,31 +113,31 @@ archive_mode = on
 
 archive_command configurado
 
-3. Estrategias de Recuperación y Buenas Prácticas
-3.1 Tipos de restauración
+## Estrategias de Recuperación y Buenas Prácticas
+### Tipos de restauración
 
-Restauración lógica
+1. **Restauración lógica:** 
 
-Tablas o bases concretas
+- Tablas o bases concretas
 
-Menor impacto
+- Menor impacto
 
-Restauración física
+2. **Restauración física**
 
-Todo el sistema
+- Todo el sistema
 
-Tras fallos graves
+- Tras fallos graves
 
-3.2 Buenas prácticas profesionales
+### Buenas prácticas profesionales
 
-Realizar backups regulares
+- Realizar backups regulares
 
-Guardarlos fuera del servidor
+- Guardarlos fuera del servidor
 
-Probar restauraciones periódicamente
+- Probar restauraciones periódicamente
 
-Automatizar con scripts y cron
+- Automatizar con scripts y cron
 
-Documentar procedimientos
+- Documentar procedimientos
 
-Un backup que nunca se ha restaurado no es un backup fiable.
+- Un backup que nunca se ha restaurado no es un backup fiable.
