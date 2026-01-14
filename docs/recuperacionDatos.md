@@ -95,7 +95,7 @@ pg_dump -U postgres -F c -t clientes -f backup_clientes.dump empresa
 
 Permite restaurar todo o partes concretas.
 
-Restaurar Base de Datos:
+**Restaurar Base de Datos:**
 
 ```console
 pg_restore -U postgres -d empresa backup_empresa.dump
@@ -107,7 +107,6 @@ Restaurar Tabla:
 pg_restore -U postgres -d empresa -t clientes backup_empresa.dump
 ```
 
-También se puede restaurar solo tablas o esquemas.
 
 ### Backup físico con pg_basebackup
 
