@@ -165,3 +165,17 @@ archive_command configurado
 - Documentar procedimientos
 
 - Un backup que nunca se ha restaurado no es un backup fiable.
+
+---
+
+## Ejercicios Prácticos
+
+**A Backup completo (pg_dump):** Realiza una copia de seguridad completa de la base de datos existente utilizando pg_dump en formato custom y guárdala en un fichero .dump.
+
+**B Restauración completa (pg_restore):** Elimina la base de datos (simulando una pérdida de datos) y restáurala completamente a partir del backup realizado en el ejercicio anterior.
+
+**C Backup de una tabla:** Realiza una copia de seguridad solo de una tabla concreta de la base de datos usando pg_dump.
+
+**D Restauración de una tabla:** Elimina la tabla anterior y recupérala únicamente desde el backup de tabla realizado.
+
+**E Simulación de error humano:** Simula un error ejecutando un DELETE o DROP TABLE sobre una tabla y documenta qué tipo de recuperación utilizas para solucionar el problema (lógica o física).
