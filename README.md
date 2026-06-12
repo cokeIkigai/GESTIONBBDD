@@ -1,5 +1,7 @@
 # GESTIONBBDD
 
+[sql](docs/sql.md)
+
 [Views](docs/views.md)
 
 [Triggers](docs/triggers.md)
