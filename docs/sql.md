@@ -1,4 +1,6 @@
-# SQL sintaxis  [docx](./SQL_Temario.docx)
+# SQL sintaxis  
+
+[sql_documentación](./SQL_Temario.docx)
 
 CREATE TABLE
 
